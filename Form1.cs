@@ -32,6 +32,7 @@ namespace FPSViewer
             int i = 1;
             try
             {
+                comboBox1.Items.Clear();
                 while (xmldoc.Read())
                 {
                     if(xmldoc.NodeType==XmlNodeType.Element){
@@ -47,7 +48,7 @@ namespace FPSViewer
             }
             catch (XmlException exp)
             {
-                MessageBox.Show("文件格式错误!");
+                MessageBox.Show("文件格式错误:" + exp.Message);
             }
         }
 
@@ -55,39 +56,48 @@ namespace FPSViewer
         {
             int index = comboBox1.SelectedIndex,i=-1;
             XmlTextReader xmldoc = new XmlTextReader(xmlfile);
-            while (xmldoc.Read())
-                if (xmldoc.NodeType == XmlNodeType.Element)
-                {
-                    Application.DoEvents();
-                    if (xmldoc.Name == "item") i++;
-                    if (i == index) {
-                        if (xmldoc.Name == "description")
+            try
+            {
+                while (xmldoc.Read())
+                    if (xmldoc.NodeType == XmlNodeType.Element)
+                    {
+                        Application.DoEvents();
+                        if (xmldoc.Name == "item") i++;
+                        if (i == index)
                         {
-                            xmldoc.Read(); textBox1.Text = xmldoc.Value;
+                            if (xmldoc.Name == "description")
+                            {
+                                xmldoc.Read(); textBox1.Text = xmldoc.Value;
+                            }
+                            else if (xmldoc.Name == "input")
+                            {
+                                xmldoc.Read(); textBox2.Text = xmldoc.Value;
+                            }
+                            else if (xmldoc.Name == "output")
+                            {
+                                xmldoc.Read(); textBox3.Text = xmldoc.Value;
+                            }
+                            else if (xmldoc.Name == "sample_input")
+                            {
+                                xmldoc.Read(); textBox4.Text = xmldoc.Value;
+                            }
+                            else if (xmldoc.Name == "sample_output")
+                            {
+                                xmldoc.Read(); textBox5.Text = xmldoc.Value;
+                            }
+                            else if (xmldoc.Name == "hint")
+                            {
+                                xmldoc.Read(); textBox6.Text = xmldoc.Value;
+                            }
                         }
-                        else if (xmldoc.Name == "input")
-                        {
-                            xmldoc.Read(); textBox2.Text = xmldoc.Value;
-                        }
-                        else if (xmldoc.Name == "output")
-                        {
-                            xmldoc.Read(); textBox3.Text = xmldoc.Value;
-                        }
-                        else if (xmldoc.Name == "sample_input")
-                        {
-                            xmldoc.Read(); textBox4.Text = xmldoc.Value;
-                        }
-                        else if (xmldoc.Name == "sample_output")
-                        {
-                            xmldoc.Read(); textBox5.Text = xmldoc.Value;
-                        }
-                        else if (xmldoc.Name == "hint")
-                        {
-                            xmldoc.Read(); textBox6.Text = xmldoc.Value;
-                        }
+                        else if (i > index) break;
                     }
-                    else if (i > index) break;
-                }
+
+            }
+            catch (XmlException exp)
+            {
+                MessageBox.Show("文件格式错误:" + exp.Message);
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -103,30 +113,37 @@ namespace FPSViewer
             if (index < 0) { MessageBox.Show("请先选择题目!"); return; }
             XmlTextReader xmldoc = new XmlTextReader(xmlfile);
 
-            while (xmldoc.Read())
-                if (xmldoc.NodeType == XmlNodeType.Element)
-                {
-                    Application.DoEvents();
-                    if (xmldoc.Name == "item") i++;
-                    if (i == index)
+            try
+            {
+                while (xmldoc.Read())
+                    if (xmldoc.NodeType == XmlNodeType.Element)
                     {
-                        if (xmldoc.Name == "test_input")
+                        Application.DoEvents();
+                        if (xmldoc.Name == "item") i++;
+                        if (i == index)
                         {
-                            c++;
-                            //int len=xmldoc.ReadChars(buf,0,10000000);
-                            //StreamWriter sw = new StreamWriter(path + "\\data" + c.ToString() + ".in", false, Encoding.ASCII);
-                            xmldoc.Read();
-                            File.WriteAllText(path + "\\data" + c.ToString() + ".in", xmldoc.Value, Encoding.ASCII);
-                            
+                            if (xmldoc.Name == "test_input")
+                            {
+                                c++;
+                                //int len=xmldoc.ReadChars(buf,0,10000000);
+                                //StreamWriter sw = new StreamWriter(path + "\\data" + c.ToString() + ".in", false, Encoding.ASCII);
+                                xmldoc.Read();
+                                File.WriteAllText(path + "\\data" + c.ToString() + ".in", xmldoc.Value, Encoding.ASCII);
+
+                            }
+                            else if (xmldoc.Name == "test_output")
+                            {
+                                xmldoc.Read();
+                                File.WriteAllText(path + "\\data" + c.ToString() + ".out", xmldoc.Value, Encoding.ASCII);
+                            }
                         }
-                        else if (xmldoc.Name == "test_output")
-                        {
-                            xmldoc.Read();
-                            File.WriteAllText(path + "\\data" + c.ToString() + ".out", xmldoc.Value, Encoding.ASCII);
-                        }
+                        else if (i > index) break;
                     }
-                    else if (i > index) break;
-                }
+            }
+            catch (XmlException exp)
+            {
+                MessageBox.Show("文件格式错误:" + exp.Message);
+            }
 
         }
 
